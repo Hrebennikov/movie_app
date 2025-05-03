@@ -1,25 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import axios from "axios";
+import Movie from './Movie';
+import "./App.scss"
 
 function App() {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [movies, setMovies] = useState<{id: number, year: number, title: string, summary: string, medium_cover_image: string, genres: []}[]>([]);
+
+  useEffect(() => {
+    const getMovies = async () => {
+      const {data: {data: {movies}}} = await axios.get('https://yts.mx/api/v2/list_movies.json?sort_by=rating');
+      setMovies(movies);
+    }
+
+      setIsLoading(false);
+      getMovies();
+  }, []) ;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <section className='container'>
+      {isLoading ? (
+        <div className="loader">
+          <span className="loader_text">Loading...</span>
+        </div> 
+    ) : (
+      <div className='movies'>
+        {movies.map(item => (
+          <Movie 
+            key={item.id}
+            id={item.id} 
+            year={item.year} 
+            title={item.title} 
+            summary={item.summary} 
+            poster={item.medium_cover_image} 
+            genres={item.genres}
+          />
+        ))}
+      </div>
+     )}
+    </section>
   );
 }
 
